@@ -1,52 +1,190 @@
-# AGENTS
+# AGENTS.md для учебного проекта OpenScript Agent Lab
 
-Codex в этом student-kit работает по коротким рабочим правилам.
+## Назначение
 
-## Обязательные правила
+Этот файл в `student-kit` является шаблоном правил для Codex.
+
+`student-kit` repo - только стартовый набор документов, правил, шаблонов и заготовок.
+Student-kit repo - только стартовый набор.
+Рабочий repo - личный проект ученика на его сервере.
+
+При создании проекта ученика этот файл должен быть скопирован в корень личного проекта как `AGENTS.md`.
+После этого Codex работает из корня личного проекта ученика.
+
+Если Codex находится в `student-kit` repo и получает задачу разработки проекта ученика, нужно STOP.
+В `student-kit` можно работать только в задачах обновления самого учебного комплекта.
+
+## Главный режим работы Codex
 
 1. Codex работает только по prompt от ChatGPT.
 2. Один run = одна задача.
-3. Если prompt противоречит правилам, нужно STOP.
-4. Не читать и не печатать секреты:
-   - `.env`;
-   - `auth.json`;
-   - tokens;
-   - API keys;
-   - Telegram bot token;
-   - private SSH keys;
-   - runtime secret files.
-5. Приватные ключи никогда не печатать.
-6. Для GitHub deploy key печатать только public key, если задача явно про это.
-7. Не использовать `localhost` как user-facing URL.
-8. Для ученика использовать только шаблоны:
-   - `http://<SERVER_PUBLIC_IP>/<PATH>`
-   - `http://<SERVER_PUBLIC_IP>:<PORT>/<PATH>`
-9. Не hardcode IP тестового сервера.
-10. Source/runtime разделять.
-11. Не делать runtime-only fix как финал.
-12. Не делать direct backend reply вместо Hermes.
-13. Агент рабочий только через Hermes.
-14. Fake/template reply не считать успехом.
-15. Telegram - канал, не business tool.
-16. Финансовая БД изменяется только deterministic tools.
-17. Не делать Telegram API/model/provider calls, если prompt не разрешает.
-18. Не писать production DB, если prompt не разрешает.
-19. В docs-update run обновлять только явно указанные docs.
-20. Документы состояния проекта:
-    - roadmap;
-    - technical spec;
-    - module map;
-    - project snapshot;
-    - student dialogue context;
-    - current status, если он есть.
-21. Всегда возвращать отчёт между:
-    - `CHATGPT_REPORT_BEGIN`
-    - `CHATGPT_REPORT_END`
-22. В отчёте указывать:
-    - STATUS;
-    - files changed;
-    - checks;
-    - git status;
-    - commit/push;
-    - safety.
-23. Если не хватает фактов, нужно STOP, а не гадать.
+3. Ученик не проектирует задачу сам.
+4. Если задача неясна, нужно STOP.
+5. Если prompt противоречит этому файлу, нужно STOP и сообщить конфликт.
+
+## Перед началом каждого run
+
+1. Убедиться, что Codex находится в правильном repo.
+2. Если это проект ученика, в корне должен быть `AGENTS.md`.
+3. Прочитать `AGENTS.md`.
+4. Проверить repo root.
+5. Проверить `git status`.
+6. Проверить нужные документы.
+7. Не начинать fix без proof/current state.
+
+## Seed-only workflow student-kit
+
+`student-kit` скачивается как источник стартовых документов.
+Student-kit repo - только seed/source документов.
+
+Дальше:
+
+1. все нужные файлы копируются в личный repo ученика;
+2. `rules/codex/AGENTS.md` копируется в `<STUDENT_PROJECT_ROOT>/AGENTS.md`;
+3. commit/push идут в личный repo ученика;
+4. `student-kit` не используется как рабочий repo проекта ученика;
+5. изменения в `student-kit` разрешены только в docs-maintenance задачах для самого `student-kit`.
+
+## Секреты
+
+Не читать и не печатать:
+
+- `.env`;
+- `auth.json`;
+- tokens;
+- API keys;
+- Telegram bot token;
+- private SSH keys;
+- runtime secret files.
+
+Private key никогда не печатать.
+Public deploy key можно печатать только если prompt явно просит создать deploy key.
+Токены не просить и не использовать без отдельного разрешения.
+
+## Git и source of truth
+
+Source живёт в git.
+Runtime отдельно.
+
+Не считать runtime-only fix финалом.
+Не трогать unrelated dirty files.
+Commit/push только когда prompt требует.
+Отчёт должен показывать `git status` before/after.
+
+## Адреса
+
+Localhost/127.0.0.1 допустимы только для внутренней проверки Codex.
+User-facing URL только:
+
+- `http://<SERVER_PUBLIC_IP>/<PATH>`
+- `http://<SERVER_PUBLIC_IP>:<PORT>/<PATH>`
+- `https://<STUDENT_DOMAIN>/<PATH>`
+
+Для `/project-structure/` использовать только шаблоны:
+
+- `http://<SERVER_PUBLIC_IP>/project-structure/`
+- `http://<SERVER_PUBLIC_IP>:<PORT>/project-structure/`
+
+Не hardcode IP тестового сервера.
+
+## Hermes-only agents
+
+Агент рабочий только через Hermes.
+
+Обязательный путь:
+
+`agent package -> validate -> apply to Hermes runtime profile -> reply through Hermes`
+
+Запрещено:
+
+- direct backend reply;
+- fake/template reply;
+- provider call мимо Hermes;
+- hardcoded one agent.
+
+## Agent package
+
+Агент должен быть package, а не один prompt.
+
+Обязательные части:
+
+- `manifest.json`;
+- `SOUL.md`;
+- `rules.md`;
+- `examples.md`;
+- `README.md`;
+- `provider.defaults.json`;
+- `skills/`;
+- `tools.json`.
+
+Package без обязательных частей не готов.
+
+## Telegram
+
+Telegram - канал общения, не business tool.
+
+Allowlist проверять по `from.id` / `user_id`.
+`chat.id` использовать только для доставки ответа.
+Telegram proof должен доказывать final bot state.
+Telegram не должен обходить Hermes.
+
+## Tools и finance
+
+Tools идут через registry/binding/tools.json.
+Опасные tools blocked by default.
+Finance DB writes only through deterministic financial tools.
+LLM/Hermes не пишет БД напрямую.
+Receipt confirmation только после подтверждения пользователя.
+
+## Voice/photo
+
+Voice -> transcript -> same text path.
+Voice не отдельная бизнес-логика.
+
+Photo receipt -> draft -> confirmation -> DB.
+Не смешивать voice/photo/text/DB в одном fix.
+
+## Документация
+
+Docs-update run только по prompt ChatGPT.
+Обновлять только явно указанные документы.
+Не обновлять docs по памяти.
+Использовать факты: отчёты Codex, `git status`, текущие файлы.
+
+Документы состояния:
+
+- roadmap;
+- ТЗ;
+- module map;
+- project snapshot;
+- student dialogue context;
+- current status, если он есть.
+
+## Формат отчёта
+
+Всегда между:
+
+`CHATGPT_REPORT_BEGIN`
+
+`CHATGPT_REPORT_END`
+
+## STATUS
+
+- SUCCESS - задача выполнена и проверена;
+- STOP - не хватает фактов или есть риск, изменения не продолжать;
+- FAIL - попытка была, но проверка/команда/изменение не прошли.
+
+## Обязательные поля отчёта
+
+- RUN_ID;
+- STATUS;
+- WHAT_CHANGED;
+- FILES_CHANGED;
+- CHECKS;
+- GIT;
+- SAFETY;
+- NEXT.
+
+Для agent runs добавлять Hermes fields.
+Для Telegram runs добавлять `user_id` / `chat_id` fields.
+Для finance runs добавлять DB/tool fields.
