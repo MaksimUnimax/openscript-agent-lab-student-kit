@@ -1,200 +1,316 @@
-# AGENTS.md для учебного проекта OpenScript Agent Lab
+# AGENTS.md — Codex Run Contract
 
-## Назначение
+Этот файл содержит постоянные правила выполнения Codex run.
 
-Этот файл в `student-kit` является шаблоном правил для Codex.
+Prompt конкретной задачи должен задавать:
+- цель;
+- allowed scope;
+- forbidden scope;
+- нужные документы;
+- проверки;
+- acceptance;
+- формат отчёта.
 
-`student-kit` repo - только стартовый набор документов, правил, шаблонов и заготовок.
-Student-kit repo - только стартовый набор.
-Рабочий repo - личный проект ученика на его сервере.
+Codex не планирует следующий этап сам.
+Codex не выбирает архитектуру сам.
+Codex выполняет только prompt.
 
-При создании проекта ученика этот файл должен быть скопирован в корень личного проекта как `AGENTS.md`.
-После этого Codex работает из корня личного проекта ученика.
+## 1. Entrypoint
 
-Если Codex находится в `student-kit` repo и получает задачу разработки проекта ученика, нужно STOP.
-В `student-kit` можно работать только в задачах обновления самого учебного комплекта.
+Для каждого нетривиального run начать из корня текущего рабочего репозитория.
 
-После bootstrap главным рабочим файлом становится именно `<STUDENT_PROJECT_ROOT>/AGENTS.md`.
-`rules/codex/AGENTS.md` внутри `student-kit` остаётся только шаблоном для копирования.
+Перед изменениями:
+- проверить repo root;
+- проверить git status;
+- определить текущий HEAD;
+- определить scope из prompt;
+- прочитать документы, явно указанные в prompt.
 
-## Главный режим работы Codex
+Не придумывать поведение проекта.
+Если docs/source/runtime не доказывают нужное поведение — STOP.
 
-1. Codex работает только по prompt от ChatGPT.
-2. Один run = одна задача.
-3. Ученик не проектирует задачу сам.
-4. Если задача неясна, нужно STOP.
-5. Если prompt противоречит этому файлу, нужно STOP и сообщить конфликт.
-6. Перед fix нужен proof/current state.
-7. Не гадать, если факт не доказан.
-8. Не делать broad refactor, если задача этого не просит.
+## 2. Task-specific docs
 
-## Перед началом каждого run
+Если prompt указывает точные документы — читать их.
 
-1. Убедиться, что Codex находится в правильном repo.
-2. Если задача про проект ученика, в корне должен быть `AGENTS.md`.
-3. Прочитать `AGENTS.md` перед работой.
-4. Проверить `git status` и понять, что уже изменено.
-5. Проверить нужные документы и scope задачи.
-6. Не начинать fix без proof/current state.
-7. Если задача требует работы в `student-kit` как в рабочем repo проекта ученика, нужно STOP.
-8. Если нужен public proof, сначала доказать фактический текущий state, потом менять.
+Не заменять точные документы общими предположениями.
 
-## Seed-only workflow student-kit
+Если задача зависит от subsystem/vendor/runtime/tool/API/protocol, читать только документы, указанные в prompt, и проверять факты по source/runtime.
 
-`student-kit` скачивается как источник стартовых документов.
-Student-kit repo - только seed/source документов.
+Если документов не хватает или они противоречат source/runtime — STOP.
 
-Дальше:
+## 3. Standard run order
 
-1. все нужные файлы копируются в личный repo ученика;
-2. `rules/codex/AGENTS.md` копируется в `<STUDENT_PROJECT_ROOT>/AGENTS.md`;
-3. commit/push идут в личный repo ученика;
-4. `student-kit` не используется как рабочий repo проекта ученика;
-5. изменения в `student-kit` разрешены только в docs-maintenance задачах для самого `student-kit`.
+Использовать порядок, если prompt не говорит иначе:
 
-## Секреты
+1. Documentation gate, если задача зависит от docs.
+2. Preflight.
+3. Read-only proof/current state.
+4. Root cause, если есть ошибка.
+5. Design/impact только в рамках prompt.
+6. Minimal source change, только если безопасно.
+7. Targeted tests.
+8. Relevant regression checks.
+9. Service restart/health only if required.
+10. Commit/push only if prompt requires it.
+11. Final report.
 
-Не читать и не печатать:
+One run = one task.
+Do not mix unrelated work.
+Do not do broad refactors unless prompt explicitly asks.
 
-- `.env`;
-- `auth.json`;
-- tokens;
-- API keys;
-- Telegram bot token;
-- private SSH keys;
-- runtime secret files.
+## 4. Preflight
 
-Private key никогда не печатать.
-Public deploy key можно печатать только если prompt явно просит создать deploy key.
-Токены не просить и не использовать без отдельного разрешения.
+Перед изменениями выполнить или эквивалентно проверить:
 
-## Git и source of truth
+- `git rev-parse HEAD`
+- `git status -sb`
+- `git status --short`
+- `git diff --stat`
+- `git diff --cached --stat`
 
-Source живёт в git.
+Если есть unexplained dirty state вне scope — STOP.
+Никогда не stage/overwrite unrelated dirty files.
+
+## 5. Source vs runtime
+
+Git-tracked source is source of truth.
+
 Runtime отдельно.
 
-Не считать runtime-only fix финалом.
-Не трогать unrelated dirty files.
-Commit/push только когда prompt требует.
-Отчёт должен показывать `git status` before/after.
-Stage только файлы в разрешённом scope.
-Не коммитить случайные изменения из соседних задач.
-Если `git status` содержит неожиданное, не объяснённое изменение, нужно STOP.
+Не делать runtime-only fix как финальное решение.
+Не коммитить runtime data.
 
-## Адреса
+Никогда не коммитить:
+- secrets;
+- tokens;
+- logs;
+- sessions;
+- runtime profiles;
+- memories;
+- generated caches;
+- backups;
+- temp files;
+- editor swap files;
+- production data.
 
-Localhost/127.0.0.1 допустимы только для внутренней проверки Codex.
-User-facing URL только:
+Если классификация файла неоднозначна — STOP.
+
+## 6. Safety boundaries
+
+Не делать без явного разрешения prompt:
+
+- external API calls;
+- provider/model calls;
+- real tool execution;
+- production DB writes;
+- auth/login/provider changes;
+- token/secret reads or prints;
+- runtime profile mutation;
+- public network calls outside required checks.
+
+Read-only inspection allowed only when safe and when it does not expose secrets.
+
+Never print:
+- secrets;
+- tokens;
+- private credentials;
+- private keys;
+- raw sensitive payloads.
+
+Public deploy key можно печатать только если prompt явно просит создать public deploy key.
+Private key никогда не печатать.
+
+## 7. User-facing URLs
+
+localhost / 127.0.0.1 можно использовать только для внутренней технической проверки.
+
+Нельзя давать localhost / 127.0.0.1 как user-facing URL.
+
+User-facing URL должен быть шаблонным или фактически доказанным публичным адресом:
 
 - `http://<SERVER_PUBLIC_IP>/<PATH>`
 - `http://<SERVER_PUBLIC_IP>:<PORT>/<PATH>`
 - `https://<STUDENT_DOMAIN>/<PATH>`
 
-Для `/project-structure/` использовать только шаблоны:
-
-- `http://<SERVER_PUBLIC_IP>/project-structure/`
-- `http://<SERVER_PUBLIC_IP>:<PORT>/project-structure/`
-
 Не hardcode IP тестового сервера.
 
-## Hermes-only agents
+## 8. UI tasks
 
-Агент рабочий только через Hermes.
+Для UI tasks делать source/local/API/test proof.
 
-Обязательный путь:
+Не требовать browser screenshots или Playwright, если prompt этого не просит.
 
-`agent package -> validate -> apply to Hermes runtime profile -> reply through Hermes`
+Если user manually verifies UI, report:
+`browser_rendered_proof: not_required_user_will_verify_ui_manually`
 
-Запрещено:
+Основной UI не превращать в diagnostic wall.
+Diagnostics держать в secondary/collapsed sections, если это требуется.
 
-- direct backend reply;
-- fake/template reply;
-- provider call мимо Hermes;
-- hardcoded one agent.
+## 9. Tool and integration semantics
 
-## Agent package
+Не считать все integrations одинаковыми.
 
-Агент должен быть package, а не один prompt.
+Различать:
+- executable tools;
+- service integrations/channels;
+- diagnostic-only entries;
+- unavailable placeholders;
+- future/blocked capabilities.
 
-Обязательные части:
+Не показывать disabled/future/blocked placeholders как available tools.
 
-- `manifest.json`;
-- `SOUL.md`;
-- `rules.md`;
-- `examples.md`;
-- `README.md`;
-- `provider.defaults.json`;
-- `skills/`;
-- `tools.json`.
+Точное поведение брать из prompt, docs, source and runtime proof.
 
-Package без обязательных частей не готов.
+## 10. Context/session work
 
-## Telegram
+Для context/session tasks сначала доказать actual handoff path.
 
-Telegram - канал общения, не business tool.
+Map:
+input source
+-> selected runtime/context identity
+-> model/runtime boundary
+-> structured state
+-> action/result state
 
-Allowlist проверять по `from.id` / `user_id`.
-`chat.id` использовать только для доставки ответа.
-Telegram proof должен доказывать final bot state.
-Telegram не должен обходить Hermes.
+Не решать universal context problem hardcoded local parser patch.
+Не использовать model memory as source of truth for structured state.
 
-## Tools и finance
+Domain examples are test cases, not whole architecture.
 
-Tools идут через registry/binding/tools.json.
-Опасные tools blocked by default.
-Finance DB writes only through deterministic financial tools.
-LLM/Hermes не пишет БД напрямую.
-Receipt confirmation только после подтверждения пользователя.
+## 11. Minimal domain guardrails
 
-## Voice/photo
+Не тащить stage-specific details в каждый run.
 
-Voice -> transcript -> same text path.
-Voice не отдельная бизнес-логика.
+Если prompt касается agent/model reply:
+- не обходить declared runtime/model boundary;
+- fake/template reply не считать success;
+- direct backend reply вместо declared agent runtime запрещён, если prompt требует agent runtime.
 
-Photo receipt -> draft -> confirmation -> DB.
-Не смешивать voice/photo/text/DB в одном fix.
+Если prompt касается business DB writes:
+- model не должен писать DB напрямую;
+- запись должна идти через deterministic handler/tool, если это указано в prompt.
 
-## Документация
+Если prompt касается media input:
+- не смешивать transport/transcription/parsing/business write в один fix без явного scope.
 
-Docs-update run только по prompt ChatGPT.
+Детальные acceptance fields должны быть в конкретном prompt, а не в AGENTS.md.
+
+## 12. Checks
+
+Run targeted tests first.
+Then smallest relevant regression suite.
+
+Не запускать unrelated expensive checks unless risk justifies them.
+
+Если test module из prompt не существует — report it and run nearest relevant existing tests.
+
+## 13. Git discipline
+
+For any source change:
+
+1. `git diff --check`
+2. `git diff --stat`
+3. stage only allowed files
+4. do not use `git add .` when unrelated dirty files exist
+5. `git diff --cached --name-only`
+6. `git diff --cached --stat`
+7. STOP if staged files include forbidden/unrelated scope
+8. commit with clear message, only if prompt requires commit
+9. push only if prompt requires push
+10. prove remote/head only if push was required
+11. end with clean git status or explain known unrelated dirty files
+
+For proof-only:
+- do not commit;
+- do not push;
+- final git status must be clean or unchanged with known unrelated files.
+
+## 14. Minimal change policy
+
+Change only files required by prompt.
+No opportunistic cleanup.
+No unrelated module rewrites.
+No behavior changes outside scope.
+No hidden source-of-truth changes.
+No invented docs/source/runtime behavior.
+
+## 15. Docs update runs
+
+Docs-update выполняется только если prompt явно просит.
+
+Codex сам не решает, что пора обновлять docs.
+
 Обновлять только явно указанные документы.
+
 Не обновлять docs по памяти.
-Использовать факты: отчёты Codex, `git status`, текущие файлы.
+Использовать:
+- Codex reports;
+- git status;
+- current files;
+- verified runtime/source facts.
 
-Документы состояния:
+Do not rewrite history silently.
+Add update history/append blocks when document format requires it.
 
-- roadmap;
-- ТЗ;
-- module map;
-- project snapshot;
-- student dialogue context;
-- current status, если он есть.
+## 16. Standard report
 
-## Формат отчёта
+Every run must end with:
 
-Всегда между:
+CHATGPT_REPORT_BEGIN
 
-`CHATGPT_REPORT_BEGIN`
+RUN_ID:
+RUN_MODE:
+STATUS: SUCCESS / STOP / FAIL
 
-`CHATGPT_REPORT_END`
+SCOPE:
+DOCS_READ:
+DOCS_MISSING:
+PREFLIGHT:
+CURRENT_STATE_PROOF:
+ROOT_CAUSE:
+WHAT_CHANGED:
+FILES_CHANGED:
+TESTS_RUN:
+CHECKS:
+SERVICE_RESTART:
+GIT:
+SAFETY:
+NEXT:
 
-## STATUS
+CHATGPT_REPORT_END
 
-- SUCCESS - задача выполнена и проверена;
-- STOP - не хватает фактов или есть риск, изменения не продолжать;
-- FAIL - попытка была, но проверка/команда/изменение не прошли.
+STATUS:
+- SUCCESS: task completed and checked.
+- STOP: missing facts/risk/conflict; no unsafe continuation.
+- FAIL: attempted execution/check failed.
 
-## Обязательные поля отчёта
+Safety block:
+- secrets_read:
+- secrets_printed:
+- private_key_printed:
+- env_values_printed:
+- localhost_given_to_user:
+- hardcoded_test_ip_found:
+- unrelated_files_changed:
+- runtime_only_fix:
 
-- RUN_ID;
-- STATUS;
-- WHAT_CHANGED;
-- FILES_CHANGED;
-- CHECKS;
-- GIT;
-- SAFETY;
-- NEXT.
+If prompt requires domain-specific fields, include them exactly as prompt requested.
 
-Для agent runs добавлять Hermes fields.
-Для Telegram runs добавлять `user_id` / `chat_id` fields.
-Для finance runs добавлять DB/tool fields.
+## 17. Stop rules
+
+STOP instead of guessing when:
+- docs/source do not prove required behavior;
+- source/runtime truth contradicts;
+- scope requires secrets/production data/live external calls not allowed by prompt;
+- staged files include forbidden scope;
+- current state cannot be proven safely;
+- task would require broader design than requested;
+- prompt conflicts with AGENTS.md or is ambiguous.
+
+When stopping, report:
+- what was proven;
+- exact blocker;
+- files inspected;
+- what data/decision is needed next;
+- git status.
