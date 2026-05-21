@@ -19,7 +19,7 @@ Prefix — это текст с правилами работы проекта.
 
 ученик пишет обычное сообщение, нажимает штатную кнопку отправки ChatGPT, а расширение перед отправкой само превращает сообщение в:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:
 ...
 
@@ -28,7 +28,7 @@ USER_MESSAGE:
 ---
 
 <сообщение ученика>
-~~
+```
 
 Ученик не должен каждый раз вручную нажимать кнопку вставки prefix.
 
@@ -45,9 +45,9 @@ USER_MESSAGE:
 1. Ученик открывает ChatGPT.
 2. Ученик пишет обычный текст в поле сообщения, например:
 
-~~text
+```text
 Тест
-~~
+```
 
 3. Ученик нажимает обычную кнопку отправки ChatGPT.
 4. Расширение перехватывает отправку.
@@ -55,7 +55,7 @@ USER_MESSAGE:
 6. Расширение проверяет, стоит ли `PROJECT_RULES_REMINDER:` в начале сообщения.
 7. Если prefix ещё не стоит в начале, расширение заменяет весь текст поля на:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:
 Перед ответом проверь актуальные правила проекта и текущий контекст.
 Если правила недоступны или не прочитаны — STOP, не выдавай prompt/fix.
@@ -69,7 +69,7 @@ USER_MESSAGE:
 ---
 
 Тест
-~~
+```
 
 8. После успешной вставки prefix расширение повторяет отправку сообщения.
 9. В ChatGPT должно уйти сообщение, которое начинается с `PROJECT_RULES_REMINDER:`.
@@ -80,13 +80,13 @@ USER_MESSAGE:
 
 Если ученик написал:
 
-~~text
+```text
 Тест
-~~
+```
 
 и нажал штатную кнопку отправки ChatGPT, в чат должно уйти:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:
 Перед ответом проверь актуальные правила проекта и текущий контекст.
 Если правила недоступны или не прочитаны — STOP, не выдавай prompt/fix.
@@ -100,7 +100,7 @@ USER_MESSAGE:
 ---
 
 Тест
-~~
+```
 
 Важно:
 
@@ -116,25 +116,25 @@ USER_MESSAGE:
 
 Запрещён результат:
 
-~~text
+```text
 ТестPROJECT_RULES_REMINDER:
 ...
-~~
+```
 
 Запрещён результат:
 
-~~text
+```text
 Тест
 
 PROJECT_RULES_REMINDER:
 ...
-~~
+```
 
 Запрещён результат:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:Перед ответом проверь...
-~~
+```
 
 Запрещено:
 
@@ -208,7 +208,7 @@ PROJECT_RULES_REMINDER:Перед ответом проверь...
 
 Базовый prefix:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:
 Перед ответом проверь актуальные правила проекта и текущий контекст.
 Если правила недоступны или не прочитаны — STOP, не выдавай prompt/fix.
@@ -220,21 +220,21 @@ Codex prompt давай только полный self-contained prompt цели
 USER_MESSAGE:
 
 ---
-~~
+```
 
 После prefix должны идти две новые строки и затем сообщение ученика.
 
 Итоговая сборка сообщения:
 
-~~text
+```text
 <prefix>
 
 <user_message>
-~~
+```
 
 Пример:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:
 Перед ответом проверь актуальные правила проекта и текущий контекст.
 Если правила недоступны или не прочитаны — STOP, не выдавай prompt/fix.
@@ -248,7 +248,7 @@ USER_MESSAGE:
 ---
 
 Тест
-~~
+```
 
 ---
 
@@ -260,17 +260,17 @@ USER_MESSAGE:
 
 Плохо:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:Перед ответом проверь актуальные правила проекта...
-~~
+```
 
 Хорошо:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:
 Перед ответом проверь актуальные правила проекта и текущий контекст.
 Если правила недоступны или не прочитаны — STOP, не выдавай prompt/fix.
-~~
+```
 
 Для contenteditable-поля ChatGPT нужно вставлять текст так, чтобы визуально и фактически сохранялись переносы строк.
 
@@ -288,9 +288,9 @@ PROJECT_RULES_REMINDER:
 
 Если сообщение уже начинается с:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:
-~~
+```
 
 расширение не должно добавлять prefix повторно.
 
@@ -298,7 +298,7 @@ PROJECT_RULES_REMINDER:
 
 В этом случае расширение должно привести сообщение к нормальному виду:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:
 ...
 
@@ -307,7 +307,7 @@ USER_MESSAGE:
 ---
 
 <текст ученика>
-~~
+```
 
 Нельзя отправлять сообщение, где пользовательский текст стоит перед prefix.
 
@@ -321,9 +321,9 @@ USER_MESSAGE:
 
 Название:
 
-~~text
+```text
 Включено
-~~
+```
 
 Если выключено — расширение ничего не вставляет перед отправкой.
 
@@ -331,9 +331,9 @@ USER_MESSAGE:
 
 Название:
 
-~~text
+```text
 Вставлять prefix при нажатии “Отправить” в ChatGPT
-~~
+```
 
 Если выключено — штатная кнопка отправки ChatGPT работает без prefix.
 
@@ -353,9 +353,9 @@ USER_MESSAGE:
 
 Она должна взять текущий текст в поле ChatGPT и заменить его на:
 
-~~text
+```text
 prefix + "\n\n" + current_user_message
-~~
+```
 
 Эта кнопка нужна только для ручной проверки.
 
@@ -365,9 +365,9 @@ prefix + "\n\n" + current_user_message
 
 Копирует в буфер prompt из документа:
 
-~~text
+```text
 extension/prompt_buttons/docs_update_prompt.md
-~~
+```
 
 или из встроенного файла расширения с таким же смыслом.
 
@@ -375,9 +375,9 @@ extension/prompt_buttons/docs_update_prompt.md
 
 Копирует в буфер prompt из документа:
 
-~~text
+```text
 extension/prompt_buttons/new_dialogue_start_prompt.md
-~~
+```
 
 или из встроенного файла расширения с таким же смыслом.
 
@@ -395,7 +395,7 @@ extension/prompt_buttons/new_dialogue_start_prompt.md
 
 Минимальные поля:
 
-~~text
+```text
 extension_version:
 active_tab_url:
 is_chatgpt_url:
@@ -410,7 +410,7 @@ autoBeforeSend:
 enabled:
 last_action:
 last_result:
-~~
+```
 
 ---
 
@@ -418,10 +418,10 @@ last_result:
 
 Расширение должно иметь две prompt-кнопки:
 
-~~text
+```text
 Копировать prompt обновления документов
 Копировать prompt старта нового диалога
-~~
+```
 
 Эти кнопки только копируют текст в буфер.
 
@@ -434,10 +434,10 @@ last_result:
 
 Тексты prompt’ов брать из:
 
-~~text
+```text
 extension/prompt_buttons/docs_update_prompt.md
 extension/prompt_buttons/new_dialogue_start_prompt.md
-~~
+```
 
 Папку `extension/prompt_buttons/` нельзя удалять, переписывать или заменять при генерации расширения.
 
@@ -449,7 +449,7 @@ Prompt’ы для кнопок не должны содержать чужие 
 
 В prompt’ах должны использоваться placeholders:
 
-~~text
+```text
 <STUDENT_PROJECT_NAME>
 <STUDENT_PUBLIC_REPO_URL>
 <STUDENT_WORKING_REPO_URL>
@@ -459,17 +459,17 @@ Prompt’ы для кнопок не должны содержать чужие 
 <STUDENT_PUBLIC_DOCS_SOURCE>
 <STUDENT_PRIVATE_SOURCE_REPO>
 <STUDENT_PUBLIC_DOCS_REPO>
-~~
+```
 
 Запрещён hardcode:
 
-~~text
+```text
 MaksimUnimax
 openscript-agent-lab-docs
 /opt/openscript-agent-lab
 git@github.com:MaksimUnimax/*
 https://github.com/MaksimUnimax/*
-~~
+```
 
 ---
 
@@ -479,9 +479,9 @@ https://github.com/MaksimUnimax/*
 
 Допустимо использовать:
 
-~~text
+```text
 chrome.storage.local
-~~
+```
 
 Расширение не должно отправлять данные наружу.
 
@@ -517,14 +517,14 @@ chrome.storage.local
 
 Проверяемые selectors:
 
-~~text
+```text
 [data-testid="prompt-textarea"]
 #prompt-textarea
 textarea
 .ProseMirror
 div[contenteditable="true"]
 [contenteditable="true"]
-~~
+```
 
 Если найдено несколько кандидатов, брать видимый и актуальный composer.
 
@@ -534,21 +534,21 @@ div[contenteditable="true"]
 
 Для textarea/input:
 
-~~text
+```text
 element.value
-~~
+```
 
 Для contenteditable:
 
-~~text
+```text
 element.innerText
-~~
+```
 
 ### 15.3. Собрать итоговый текст
 
-~~text
+```text
 finalText = prefix.trim() + "\n\n" + userText.trim()
-~~
+```
 
 Если userText пустой, отправку лучше не трогать.
 
@@ -558,25 +558,25 @@ finalText = prefix.trim() + "\n\n" + userText.trim()
 
 Плохо:
 
-~~text
+```text
 userText + prefix
-~~
+```
 
 Правильно:
 
-~~text
+```text
 prefix + userText
-~~
+```
 
 ### 15.5. Сообщить ChatGPT, что поле изменилось
 
 После замены текста нужно вызвать события:
 
-~~text
+```text
 input
 change
 keyup
-~~
+```
 
 или эквивалентный механизм, чтобы React/ChatGPT увидел новое состояние поля.
 
@@ -588,9 +588,9 @@ keyup
 
 Рекомендуемый диапазон:
 
-~~text
+```text
 150–400 ms
-~~
+```
 
 ---
 
@@ -598,16 +598,16 @@ keyup
 
 После вставки текущий текст composer должен начинаться с:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:
-~~
+```
 
 Диагностика должна показать:
 
-~~text
+```text
 current_starts_with_prefix: yes
 prefix_has_marker: yes
-~~
+```
 
 Если `current_has_prefix: yes`, но `current_starts_with_prefix: no`, это ошибка.
 
@@ -621,19 +621,19 @@ prefix_has_marker: yes
 
 Ввод:
 
-~~text
+```text
 Тест
-~~
+```
 
 Действие:
 
-~~text
+```text
 Нажать штатную кнопку отправки ChatGPT
-~~
+```
 
 Ожидаемый результат:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:
 ...
 USER_MESSAGE:
@@ -641,7 +641,7 @@ USER_MESSAGE:
 ---
 
 Тест
-~~
+```
 
 Сообщение должно начинаться с `PROJECT_RULES_REMINDER:`.
 
@@ -649,9 +649,9 @@ USER_MESSAGE:
 
 Ожидаемый результат не должен быть таким:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:Перед ответом проверь...
-~~
+```
 
 Между `PROJECT_RULES_REMINDER:` и следующим текстом должен быть перенос строки.
 
@@ -659,25 +659,25 @@ PROJECT_RULES_REMINDER:Перед ответом проверь...
 
 Ввод:
 
-~~text
+```text
 Тест
-~~
+```
 
 Запрещённый результат:
 
-~~text
+```text
 ТестPROJECT_RULES_REMINDER:
 ...
-~~
+```
 
 ### Test 4. Повторная отправка
 
 Если в поле уже есть:
 
-~~text
+```text
 PROJECT_RULES_REMINDER:
 ...
-~~
+```
 
 расширение не должно добавлять второй prefix.
 
@@ -685,17 +685,17 @@ PROJECT_RULES_REMINDER:
 
 Кнопка:
 
-~~text
+```text
 Копировать prompt обновления документов
-~~
+```
 
 должна копировать prompt обновления документов.
 
 Кнопка:
 
-~~text
+```text
 Копировать prompt старта нового диалога
-~~
+```
 
 должна копировать prompt старта нового диалога.
 
@@ -707,22 +707,22 @@ PROJECT_RULES_REMINDER:
 
 Clipboard может меняться только при нажатии кнопок:
 
-~~text
+```text
 Копировать prompt обновления документов
 Копировать prompt старта нового диалога
 Копировать prefix
-~~
+```
 
 ### Test 7. Диагностика
 
 После нажатия “Проверить” должно быть видно:
 
-~~text
+```text
 composer_found: yes
 prefix_has_marker: yes
 autoBeforeSend: yes
 enabled: yes
-~~
+```
 
 ---
 
@@ -756,7 +756,7 @@ enabled: yes
 
 Главная проверка:
 
-~~text
+```text
 Ввод:
 Тест
 
@@ -771,7 +771,7 @@ USER_MESSAGE:
 ---
 
 Тест
-~~
+```
 
 ---
 
@@ -779,11 +779,11 @@ USER_MESSAGE:
 
 При генерации zip расширения нельзя удалять или переписывать документацию prompt-кнопок:
 
-~~text
+```text
 extension/prompt_buttons/README.md
 extension/prompt_buttons/docs_update_prompt.md
 extension/prompt_buttons/new_dialogue_start_prompt.md
-~~
+```
 
 Эти файлы являются источником текстов для двух кнопок.
 

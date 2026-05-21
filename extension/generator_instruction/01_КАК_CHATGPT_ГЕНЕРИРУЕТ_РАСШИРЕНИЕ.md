@@ -158,11 +158,13 @@ PROJECT_RULES_REMINDER:Перед ответом проверь...
 
 Перед генерацией расширения ChatGPT должен заменить placeholders:
 
-- <PROJECT_NAME>
-- <DOCS_SOURCE>
-- <STUDENT_PROJECT_REPO>
-- <PROJECT_RULES_PATH>
-- <PROJECT_TZ_PATH>
+```text
+<PROJECT_NAME>
+<DOCS_SOURCE>
+<STUDENT_PROJECT_REPO>
+<PROJECT_RULES_PATH>
+<PROJECT_TZ_PATH>
+```
 
 Если какие-то значения неизвестны, ChatGPT должен STOP и запросить недостающую информацию.
 
